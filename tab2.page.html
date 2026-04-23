@@ -1,0 +1,152 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>New & Featured</ion-title>
+    <ion-buttons slot="end">
+      <app-help-button [title]="helpTitle" [helpText]="helpText"></app-help-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Add inventory</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <ion-list [inset]="true" lines="full">
+      <ion-item>
+        <ion-input
+          label="item name"
+          labelPlacement="stacked"
+          formControlName="item_name"
+          autocomplete="off"
+          autocapitalize="off"
+        ></ion-input>
+      </ion-item>
+      @if (fieldError('item_name')) {
+        <ion-text color="danger" class="ion-padding-start ion-padding-bottom ion-display-block">
+          {{ fieldError('item_name') }}
+        </ion-text>
+      }
+
+      <ion-item>
+        <ion-select label="category" labelPlacement="stacked" interface="popover" formControlName="category">
+          @for (c of categories; track c) {
+            <ion-select-option [value]="c">{{ c }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          type="number"
+          label="quantity"
+          labelPlacement="stacked"
+          formControlName="quantity"
+          inputmode="numeric"
+        ></ion-input>
+      </ion-item>
+      @if (fieldError('quantity')) {
+        <ion-text color="danger" class="ion-padding-start ion-padding-bottom ion-display-block">
+          {{ fieldError('quantity') }}
+        </ion-text>
+      }
+
+      <ion-item>
+        <ion-input
+          type="number"
+          label="price"
+          labelPlacement="stacked"
+          formControlName="price"
+          inputmode="numeric"
+        ></ion-input>
+      </ion-item>
+      @if (fieldError('price')) {
+        <ion-text color="danger" class="ion-padding-start ion-padding-bottom ion-display-block">
+          {{ fieldError('price') }}
+        </ion-text>
+      }
+
+      <ion-item>
+        <ion-input
+          label="supplier"
+          labelPlacement="stacked"
+          formControlName="supplier_name"
+          autocomplete="off"
+        ></ion-input>
+      </ion-item>
+      @if (fieldError('supplier_name')) {
+        <ion-text color="danger" class="ion-padding-start ion-padding-bottom ion-display-block">
+          {{ fieldError('supplier_name') }}
+        </ion-text>
+      }
+
+      <ion-item>
+        <ion-select
+          label="Inventory Status"
+          labelPlacement="stacked"
+          interface="popover"
+          formControlName="stock_status"
+        >
+          @for (s of stockStatuses; track s) {
+            <ion-select-option [value]="s">{{ s }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-toggle formControlName="featured_item">Selected items</ion-toggle>
+      </ion-item>
+
+      <ion-item>
+        <ion-textarea
+          label="Remarks (optional)"
+          labelPlacement="stacked"
+          formControlName="special_note"
+          rows="3"
+          maxlength="500"
+        ></ion-textarea>
+      </ion-item>
+      @if (fieldError('special_note')) {
+        <ion-text color="danger" class="ion-padding-start ion-padding-bottom ion-display-block">
+          {{ fieldError('special_note') }}
+        </ion-text>
+      }
+    </ion-list>
+
+    <div class="ion-padding">
+      <ion-button type="submit" expand="block">Submit a new addition</ion-button>
+    </div>
+  </form>
+
+  <ion-list [inset]="true">
+    <ion-list-header>
+      <ion-label>Selected items（featured_item = 1）</ion-label>
+      <ion-button fill="clear" size="small" (click)="loadFeatured()">refresh</ion-button>
+    </ion-list-header>
+
+    @if (loadingFeatured) {
+      <ion-item lines="none">
+        <ion-spinner slot="start" name="crescent"></ion-spinner>
+        <ion-label>Load Featured</ion-label>
+      </ion-item>
+    }
+
+    @for (it of featuredItems; track it.item_name) {
+      <ion-item>
+        <ion-label>
+          <h3>{{ it.item_name }}</h3>
+          <p>{{ it.category }} · {{ it.stock_status }} · ¥{{ it.price }}</p>
+        </ion-label>
+      </ion-item>
+    } @empty {
+      @if (!loadingFeatured) {
+        <ion-item lines="none">
+          <ion-text color="medium">There are currently no selected items available.</ion-text>
+        </ion-item>
+      }
+    }
+  </ion-list>
+</ion-content>
