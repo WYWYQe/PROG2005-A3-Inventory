@@ -47,7 +47,7 @@ export class Tab1Page implements OnInit {
   }
 
   get lowStockCount(): number {
-    return this.items.filter((item) => item.stock_status === 'Low stock').length;
+    return this.items.filter((item) => this.resolveDisplayStatus(item) === 'Low stock').length;
   }
 
   get totalStockValue(): number {
@@ -90,17 +90,18 @@ export class Tab1Page implements OnInit {
     this.searchHadError = false;
     this.searchResult = null;
 
-    this.inventory.getByName(keyword).subscribe({
-      next: (item) => {
-        this.searchResult = item;
-        this.searchLoading = false;
-      },
-      error: async (err: Error) => {
-        this.searchLoading = false;
-        this.searchHadError = true;
-        await this.presentToast(err.message, 'warning');
-      },
-    });
+    // 使用前端模糊搜索，避免后端名称必须完全匹配导致查不到。
+    const normalizedKeyword = this.normalizeKeyword(keyword);
+    const matched = this.items.find((item) =>
+      this.normalizeKeyword(item.item_name).includes(normalizedKeyword),
+    );
+
+    this.searchResult = matched ?? null;
+    this.searchLoading = false;
+
+    if (!matched) {
+      await this.presentToast('未找到匹配商品，请尝试输入更完整或更短的关键词。', 'warning');
+    }
   }
 
   clearSearch(): void {
@@ -138,6 +139,25 @@ export class Tab1Page implements OnInit {
       return 'status-warn';
     }
     return 'status-bad';
+  }
+
+  displayStatus(item: InventoryItem | null): string {
+    if (!item) {
+      return 'Out of stock';
+    }
+    return this.resolveDisplayStatus(item);
+  }
+
+  private normalizeKeyword(value: string): string {
+    return value.trim().toLowerCase().replace(/\s+/g, '');
+  }
+
+  private resolveDisplayStatus(item: InventoryItem): string {
+    // 数据里若 quantity=0 但状态仍为 In stock，会误导用户，前端展示时兜底为缺货。
+    if (Number(item.quantity) <= 0) {
+      return 'Out of stock';
+    }
+    return item.stock_status;
   }
 
   private async presentToast(message: string, color: string): Promise<void> {

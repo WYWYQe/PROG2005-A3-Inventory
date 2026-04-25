@@ -79,8 +79,8 @@
               <span class="result-kicker">搜索结果</span>
               <h3>{{ searchResult.item_name }}</h3>
             </div>
-            <span class="stock-pill" [class]="statusTone(searchResult.stock_status)">
-              {{ statusLabel(searchResult.stock_status) }}
+            <span class="stock-pill" [class]="statusTone(displayStatus(searchResult))">
+              {{ statusLabel(displayStatus(searchResult)) }}
             </span>
           </div>
 
@@ -119,7 +119,7 @@
           </div>
         </div>
       } @else if (searchAttempted && !searchLoading && !searchHadError) {
-        <div class="empty-state">没有找到匹配记录，请确认商品名称和服务端中的名称完全一致。</div>
+        <div class="empty-state">没有找到匹配记录，请尝试输入更短关键词或检查商品名称。</div>
       }
     </section>
 
@@ -153,8 +153,8 @@
                 <h3>{{ item.item_name }}</h3>
                 <p>{{ categoryLabel(item.category) }} · ID {{ item.item_id }}</p>
               </div>
-              <span class="stock-pill" [class]="statusTone(item.stock_status)">
-                {{ statusLabel(item.stock_status) }}
+              <span class="stock-pill" [class]="statusTone(displayStatus(item))">
+                {{ statusLabel(displayStatus(item)) }}
               </span>
             </div>
 
