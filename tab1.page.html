@@ -1,0 +1,187 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>列表与搜索</ion-title>
+    <ion-buttons slot="end">
+      <app-help-button [title]="helpTitle" [helpText]="helpText"></app-help-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">列表与搜索</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="page-shell">
+    <section class="hero-card">
+      <span class="hero-eyebrow">
+        <ion-icon name="list-outline"></ion-icon>
+        库存管理
+      </span>
+      <h1 class="hero-title">列表与搜索</h1>
+      <p class="hero-copy">查看库存记录并按名称搜索商品。</p>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <strong>{{ inventoryCount }}</strong>
+          <span>库存条目</span>
+        </div>
+        <div class="metric-card">
+          <strong>{{ featuredCount }}</strong>
+          <span>精选商品</span>
+        </div>
+        <div class="metric-card">
+          <strong>{{ lowStockCount }}</strong>
+          <span>低库存</span>
+        </div>
+        <div class="metric-card">
+          <strong>{{ formatCurrency(totalStockValue) }}</strong>
+          <span>库存总值</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-title">
+      <div>
+        <h2>搜索商品</h2>
+        <p>输入商品名称后可快速查询对应记录。</p>
+      </div>
+    </section>
+
+    <section class="content-card search-panel">
+      <ion-searchbar
+        [(ngModel)]="searchQuery"
+        placeholder="输入商品名称，例如 Laptop"
+        [debounce]="0"
+        show-clear-button="focus"
+        (keyup.enter)="searchByName()"
+      ></ion-searchbar>
+
+      <div class="search-actions">
+        <ion-button expand="block" (click)="searchByName()" [disabled]="searchLoading">
+          @if (searchLoading) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            搜索记录
+          }
+        </ion-button>
+        @if (searchAttempted) {
+          <ion-button expand="block" fill="clear" color="medium" (click)="clearSearch()">清空搜索</ion-button>
+        }
+      </div>
+
+      @if (searchResult) {
+        <div class="search-result">
+          <div class="result-head">
+            <div>
+              <span class="result-kicker">搜索结果</span>
+              <h3>{{ searchResult.item_name }}</h3>
+            </div>
+            <span class="stock-pill" [class]="statusTone(searchResult.stock_status)">
+              {{ statusLabel(searchResult.stock_status) }}
+            </span>
+          </div>
+
+          <div class="detail-grid">
+            <div>
+              <span>物品 ID</span>
+              <strong>{{ searchResult.item_id }}</strong>
+            </div>
+            <div>
+              <span>类别</span>
+              <strong>{{ categoryLabel(searchResult.category) }}</strong>
+            </div>
+            <div>
+              <span>数量</span>
+              <strong>{{ searchResult.quantity }}</strong>
+            </div>
+            <div>
+              <span>价格</span>
+              <strong>{{ formatCurrency(searchResult.price) }}</strong>
+            </div>
+            <div>
+              <span>供应商</span>
+              <strong>{{ searchResult.supplier_name }}</strong>
+            </div>
+            <div>
+              <span>备注</span>
+              <strong>{{ searchResult.special_note || '暂无' }}</strong>
+            </div>
+          </div>
+
+          <div class="chip-row">
+            <span class="soft-chip">
+              <ion-icon name="star-outline"></ion-icon>
+              {{ searchResult.featured_item === 1 ? '精选商品' : '普通商品' }}
+            </span>
+          </div>
+        </div>
+      } @else if (searchAttempted && !searchLoading && !searchHadError) {
+        <div class="empty-state">没有找到匹配记录，请确认商品名称和服务端中的名称完全一致。</div>
+      }
+    </section>
+
+    <section class="section-title">
+      <div>
+        <h2>库存列表</h2>
+        <p>{{ heroSummary }}</p>
+      </div>
+      <ion-button fill="clear" size="small" (click)="loadAll()">刷新</ion-button>
+    </section>
+
+    @if (loadState === 'loading') {
+      <section class="content-card empty-state">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>正在加载库存数据...</p>
+      </section>
+    } @else if (loadState === 'error') {
+      <section class="content-card empty-state">
+        <p>加载失败，请稍后重试。</p>
+      </section>
+    } @else if (loadState === 'empty') {
+      <section class="content-card empty-state">
+        <p>当前还没有库存数据。</p>
+      </section>
+    } @else {
+      <section class="inventory-grid">
+        @for (item of items; track trackByName($index, item)) {
+          <article class="inventory-card">
+            <div class="inventory-card__head">
+              <div>
+                <h3>{{ item.item_name }}</h3>
+                <p>{{ categoryLabel(item.category) }} · ID {{ item.item_id }}</p>
+              </div>
+              <span class="stock-pill" [class]="statusTone(item.stock_status)">
+                {{ statusLabel(item.stock_status) }}
+              </span>
+            </div>
+
+            <div class="inventory-card__stats">
+              <div>
+                <span>数量</span>
+                <strong>{{ item.quantity }}</strong>
+              </div>
+              <div>
+                <span>价格</span>
+                <strong>{{ formatCurrency(item.price) }}</strong>
+              </div>
+              <div>
+                <span>估值</span>
+                <strong>{{ formatCurrency(item.quantity * item.price) }}</strong>
+              </div>
+            </div>
+
+            <div class="inventory-card__foot">
+              <span>{{ item.supplier_name }}</span>
+              @if (item.featured_item === 1) {
+                <ion-icon name="sparkles-outline"></ion-icon>
+              }
+            </div>
+          </article>
+        }
+      </section>
+    }
+  </div>
+</ion-content>
