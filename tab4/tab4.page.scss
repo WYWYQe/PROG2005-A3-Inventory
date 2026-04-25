@@ -1,0 +1,36 @@
+.policy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.policy-card {
+  padding: 20px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(27, 54, 79, 0.08);
+  box-shadow: 0 16px 34px rgba(21, 39, 56, 0.08);
+}
+
+.policy-card h3 {
+  margin: 16px 0 10px;
+  font-size: 1.05rem;
+}
+
+.policy-card p {
+  margin: 0;
+  color: #66778a;
+  line-height: 1.65;
+}
+
+.policy-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: rgba(15, 107, 120, 0.12);
+  color: #0f6b78;
+  font-size: 1.3rem;
+}

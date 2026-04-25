@@ -1,0 +1,234 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>更新与删除</ion-title>
+    <ion-buttons slot="end">
+      <app-help-button [title]="helpTitle" [helpText]="helpText"></app-help-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">更新与删除</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="page-shell">
+    <section class="hero-card">
+      <span class="hero-eyebrow">
+        <ion-icon name="create-outline"></ion-icon>
+        库存管理
+      </span>
+      <h1 class="hero-title">更新与删除</h1>
+      <p class="hero-copy">先加载记录，再修改或删除对应的库存信息。</p>
+    </section>
+
+    <section class="section-title">
+      <div>
+        <h2>加载记录</h2>
+        <p>输入商品名称后读取当前记录。</p>
+      </div>
+    </section>
+
+    <section class="content-card">
+      <ion-item>
+        <ion-input
+          label="要查询的物品名称"
+          labelPlacement="stacked"
+          placeholder="请输入物品名称"
+          [(ngModel)]="lookupName"
+          autocomplete="off"
+        ></ion-input>
+      </ion-item>
+
+      <div class="lookup-actions">
+        <ion-button expand="block" (click)="lookup()" [disabled]="lookupLoading">
+          @if (lookupLoading) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            加载记录
+          }
+        </ion-button>
+      </div>
+    </section>
+
+    <section class="section-title">
+      <div>
+        <h2>当前记录</h2>
+        @if (canEdit) {
+          <p>已加载 {{ loadedItemName }}，可以继续修改或删除。</p>
+        } @else {
+          <p>暂未加载商品。</p>
+        }
+      </div>
+    </section>
+
+    @if (canEdit) {
+      <section class="content-card snapshot-card">
+        <div>
+          <span>商品名称</span>
+          <strong>{{ loadedItemName }}</strong>
+        </div>
+        <div>
+          <span>库存状态</span>
+          <strong>{{ statusLabel(editForm.getRawValue().stock_status) }}</strong>
+        </div>
+        <div>
+          <span>当前价格</span>
+          <strong>{{ formatCurrency(editForm.getRawValue().price) }}</strong>
+        </div>
+      </section>
+    } @else {
+      <section class="content-card empty-state">
+        <p>请先查询一个商品，编辑表单才会解锁。</p>
+      </section>
+    }
+
+    <section class="section-title">
+      <div>
+        <h2>编辑表单</h2>
+        <p>修改后可保存更新，也可以删除当前记录。</p>
+      </div>
+    </section>
+
+    <section class="content-card">
+      <form [formGroup]="editForm" (ngSubmit)="save()" novalidate>
+        <div class="form-grid">
+          <div>
+            <ion-item>
+              <ion-input
+                label="物品名称"
+                labelPlacement="stacked"
+                placeholder="请输入物品名称"
+                formControlName="item_name"
+                autocomplete="off"
+              ></ion-input>
+            </ion-item>
+            @if (fieldError('item_name')) {
+              <ion-text color="danger" class="field-error">{{ fieldError('item_name') }}</ion-text>
+            }
+          </div>
+
+          <div>
+            <ion-item>
+              <ion-select
+                label="类别"
+                labelPlacement="stacked"
+                interface="popover"
+                placeholder="请选择类别"
+                formControlName="category"
+              >
+                @for (c of categories; track c.value) {
+                  <ion-select-option [value]="c.value">{{ c.label }}</ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
+          </div>
+
+          <div>
+            <ion-item>
+              <ion-input
+                type="number"
+                label="数量"
+                labelPlacement="stacked"
+                placeholder="请输入数量"
+                formControlName="quantity"
+                inputmode="numeric"
+              ></ion-input>
+            </ion-item>
+            @if (fieldError('quantity')) {
+              <ion-text color="danger" class="field-error">{{ fieldError('quantity') }}</ion-text>
+            }
+          </div>
+
+          <div>
+            <ion-item>
+              <ion-input
+                type="number"
+                label="价格"
+                labelPlacement="stacked"
+                placeholder="请输入价格"
+                formControlName="price"
+                inputmode="numeric"
+              ></ion-input>
+            </ion-item>
+            @if (fieldError('price')) {
+              <ion-text color="danger" class="field-error">{{ fieldError('price') }}</ion-text>
+            }
+          </div>
+
+          <div class="form-grid__full">
+            <ion-item>
+              <ion-input
+                label="供应商名称"
+                labelPlacement="stacked"
+                placeholder="请输入供应商名称"
+                formControlName="supplier_name"
+              ></ion-input>
+            </ion-item>
+            @if (fieldError('supplier_name')) {
+              <ion-text color="danger" class="field-error">{{ fieldError('supplier_name') }}</ion-text>
+            }
+          </div>
+
+          <div>
+            <ion-item>
+              <ion-select
+                label="库存状态"
+                labelPlacement="stacked"
+                interface="popover"
+                placeholder="请选择库存状态"
+                formControlName="stock_status"
+              >
+                @for (s of stockStatuses; track s.value) {
+                  <ion-select-option [value]="s.value">{{ s.label }}</ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
+          </div>
+
+          <div>
+            <ion-item class="toggle-item">
+              <ion-toggle formControlName="featured_item">设为精选商品</ion-toggle>
+            </ion-item>
+          </div>
+
+          <div class="form-grid__full">
+            <ion-item>
+              <ion-textarea
+                label="备注"
+                labelPlacement="stacked"
+                placeholder="可填写补充说明"
+                formControlName="special_note"
+                rows="4"
+                maxlength="500"
+              ></ion-textarea>
+            </ion-item>
+            @if (fieldError('special_note')) {
+              <ion-text color="danger" class="field-error">{{ fieldError('special_note') }}</ion-text>
+            }
+          </div>
+        </div>
+
+        @if (deleteBlocked) {
+          <div class="empty-state">当前商品为 `Laptop`，根据规则不允许删除。</div>
+        }
+
+        <div class="action-grid">
+          <ion-button type="submit" expand="block" [disabled]="!canEdit">保存更新</ion-button>
+          <ion-button
+            expand="block"
+            color="danger"
+            fill="outline"
+            type="button"
+            [disabled]="!canEdit || deleteBlocked"
+            (click)="confirmDelete()"
+          >
+            删除记录
+          </ion-button>
+        </div>
+      </form>
+    </section>
+  </div>
+</ion-content>

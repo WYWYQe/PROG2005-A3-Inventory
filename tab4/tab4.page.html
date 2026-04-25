@@ -1,0 +1,55 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>隐私与安全</ion-title>
+    <ion-buttons slot="end">
+      <app-help-button [title]="helpTitle" [helpText]="helpText"></app-help-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">隐私与安全</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="page-shell">
+    <section class="hero-card">
+      <span class="hero-eyebrow">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        应用说明
+      </span>
+      <h1 class="hero-title">隐私与安全</h1>
+      <p class="hero-copy">查看应用的数据使用规则和安全说明。</p>
+
+      <div class="metric-grid">
+        @for (item of highlights; track item.label) {
+          <div class="metric-card">
+            <strong>{{ item.value }}</strong>
+            <span>{{ item.label }}</span>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="section-title">
+      <div>
+        <h2>隐私条款摘要</h2>
+        <p>以下内容为本应用的隐私和安全说明摘要。</p>
+      </div>
+    </section>
+
+    <section class="policy-grid">
+      @for (sec of sections; track sec.title) {
+        <article class="policy-card">
+          <div class="policy-card__icon">
+            <ion-icon [name]="sec.icon"></ion-icon>
+          </div>
+          <h3>{{ sec.title }}</h3>
+          <p>{{ sec.body }}</p>
+        </article>
+      }
+    </section>
+  </div>
+</ion-content>

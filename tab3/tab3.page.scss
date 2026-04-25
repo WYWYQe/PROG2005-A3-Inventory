@@ -1,0 +1,48 @@
+.lookup-actions,
+.action-grid,
+.snapshot-card,
+.form-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.snapshot-card {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.snapshot-card span {
+  display: block;
+  margin-bottom: 6px;
+  color: #66778a;
+  font-size: 0.84rem;
+}
+
+.snapshot-card strong {
+  font-size: 1rem;
+}
+
+.form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-grid__full,
+.action-grid {
+  grid-column: 1 / -1;
+}
+
+.field-error {
+  display: block;
+  padding: 0 8px 2px 14px;
+}
+
+.toggle-item {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 576px) {
+  .snapshot-card,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
